@@ -1,6 +1,6 @@
 /*
  * nvidia K80
- *
+ * Total amount of shared memory per block:       49152 bytes
  * Warp Size:                     32
  * Maximum Threads per Block:     1024
  * Maximum Block Dimensions:      1024, 1024, 64
