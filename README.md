@@ -1,6 +1,7 @@
 gpumm - matrix-matrix multiplication by using CUDA and cublas.
 ===
-cuda, intel compiler and MKL are needed.  
+cuda, intel compiler and MKL are needed.
+It seems that column major indexing is better for cuda even in C/C++.  
   
 The following is a result, GPU used in the test is nvidia K80.  
 CPU is Intel(R) Xeon(R) CPU E5-2650 v3 @ 2.30GHz, 20 cores.
