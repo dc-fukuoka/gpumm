@@ -69,7 +69,7 @@ __global__ static void _mydgemm(size_t *dsize, double *dA, double *dB, double *d
     clearbuf(dsize, dC);
     if (i >= *dsize || j >= *dsize) return;
     for (k=0; k<*dsize; k++)
-        dC[idx(*dsize, j, i)] += dA[idx(*dsize, j, k)]*dB[idx(*dsize, k, i)];
+        dC[idx(*dsize, i, j)] += dA[idx(*dsize, i, k)]*dB[idx(*dsize, k, j)];
 }
 #endif /* _USE_SM */
 
