@@ -2,7 +2,7 @@ gpumm - matrix-matrix multiplication by using CUDA and cublas.
 ===
 cuda, intel compiler and MKL are needed.  
   
-The following is a result, GPU is nvidia K80.  
+The following is a result, GPU used in the test is nvidia K80.  
 CPU is Intel(R) Xeon(R) CPU E5-2650 v3 @ 2.30GHz, 20 cores.
 The size of the matrices is size x size.  
   
