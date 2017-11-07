@@ -39,7 +39,7 @@ void cublasdgemm(size_t size, double *hA, double *hB, double *hC) {
     stat = cublasSetMatrix(size, size, sizeof(*hC), hC, ldc, dC, size);
     cublas_assert(stat == CUBLAS_STATUS_SUCCESS, "cublasSetMatrix hC");
 
-    // note: cublasDgemm() uses column major(fortran order) matrices
+    // note: cublas uses column major(fortran order) matrices
     // http://docs.nvidia.com/cuda/cublas/index.html
     // so trancepose row major matrices
     stat = cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_T, size, size, size, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
