@@ -43,7 +43,7 @@ void cublasdgemm(size_t size, double *hA, double *hB, double *hC) {
     // http://docs.nvidia.com/cuda/cublas/index.html
     // so trancepose row major matrices
     stat = cublasDgemm(handle, CUBLAS_OP_T, CUBLAS_OP_T, size, size, size, &alpha, dA, lda, dB, ldb, &beta, dC, ldc);
-    cublas_assert(stat == CUBLAS_STATUS_SUCCESS, "cublasDgem");
+    cublas_assert(stat == CUBLAS_STATUS_SUCCESS, "cublasDgemm");
     // tracepose C since the matrix is column major
     stat = cublasDgeam(handle, CUBLAS_OP_T, CUBLAS_OP_N, size, size, &alpha, dC, ldc, &beta, dB, ldb, dCt, ldc);
     cublas_assert(stat == CUBLAS_STATUS_SUCCESS, "cublasDgeam");
