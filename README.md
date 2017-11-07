@@ -26,7 +26,7 @@ nblocks per grid: 32, nthreads per block: 256
 shared memory version
 time[s]: 0.775476
 ~~~
-* cublasDgemm() (note: the matrices for cublas are column-major, so transepose is done)
+* cublasDgemm() (note: the matrices for cublas are column-major, so transepose is performed.)
 ~~~
 $ KMP_AFFINITY=compact srun -pGPU -n1 cublas/cublasmm 8192
 size: 8192
