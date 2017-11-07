@@ -1,7 +1,6 @@
 /*
  * nvidia K80
  *
- * Total amount of shared memory per block:       49152 bytes
  * Warp Size:                     32
  * Maximum Threads per Block:     1024
  * Maximum Block Dimensions:      1024, 1024, 64
@@ -78,11 +77,17 @@ __host__ void mydgemm(dim3 &nblocks_per_grid, dim3 &nthreads_per_block, size_t s
     double *dA, *dB, *dC;
     size_t *dsize;
     cudaDeviceProp dp;
-    unsigned int warpsize;
+    unsigned int warpsize, smsize, smsize_used;
 
     cudaGetDeviceProperties(&dp, 0);
     warpsize = dp.warpSize;
+    smsize   = dp.sharedMemPerBlock;
 //    printf("warp size: %u\n", warpsize);
+
+    printf("# of blocks per grid:   x: %u, y: %u\n", nblocks_per_grid.x,   nblocks_per_grid.y);
+    printf("# of threads per block: x: %u, y: %u\n", nthreads_per_block.x, nthreads_per_block.y);
+    if (nthreads_per_block.x*nthreads_per_block.y > dp.maxThreadsPerBlock)
+	printf("warning: nthreads_per_block.x*nthreads_per_block.y exceeds dp.maxThreadsPerBlock, dp.maxThreadsPerBlock: %u\n", dp.maxThreadsPerBlock);
     
     cudaMalloc((void**)&dA,    sizeof(*dA)*size*size);
     cudaMalloc((void**)&dB,    sizeof(*dB)*size*size);
@@ -94,11 +99,16 @@ __host__ void mydgemm(dim3 &nblocks_per_grid, dim3 &nthreads_per_block, size_t s
     cudaMemcpy(dsize, &size, sizeof(*dsize),        cudaMemcpyHostToDevice);
 
 #ifdef _USE_SM
-    printf("shared memory version\n");
+    smsize_used = sizeof(*dA)*nthreads_per_block.x*nthreads_per_block.y*2;
+    if (smsize_used >= smsize)
+	printf("warning: used shared memory exceeds the limit, used shared memory size[B]:%u limit[B]: %u\n", smsize_used, smsize);
+    printf("shared memory version\nsize of shared memory used[B]: %u\n", smsize_used);
+    _mydgemm<<<nblocks_per_grid, nthreads_per_block, smsize_used>>>(dsize, dA, dB, dC);
 #else
     printf("no shared memory version\n");
+    _mydgemm<<<nblocks_per_grid, nthreads_per_block>>>(dsize, dA, dB, dC);
 #endif /* _USE_SM */
-    _mydgemm<<<nblocks_per_grid, nthreads_per_block, sizeof(*dA)*nthreads_per_block.x*nthreads_per_block.y*2>>>(dsize, dA, dB, dC);
+
     
     cudaMemcpy(hC, dC, sizeof(*hC)*size*size, cudaMemcpyDeviceToHost);
     cudaFree((void*)dA);

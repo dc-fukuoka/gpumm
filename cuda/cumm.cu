@@ -18,8 +18,6 @@ int main(int argc, char **argv) {
 
     dim3 nthreads_per_block(nblocks, nblocks);
     dim3 nblocks_per_grid(size/nthreads_per_block.x, size/nthreads_per_block.y);
-
-    printf("size: %u\nnblocks per grid: %u, nthreads per block: %u\n", size, nblocks_per_grid.x, nthreads_per_block.x);
 	
     A  = (double*)malloc(sizeof(*A)*size*size);
     B  = (double*)malloc(sizeof(*B)*size*size);
