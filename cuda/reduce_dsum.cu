@@ -10,7 +10,7 @@ __inline__ __device__ static double warpAllReduceSum(unsigned int warpsize, doub
     return val;
 }
 #endif
-// reduce, lane 0 has the reductionvalue
+// reduce, lane 0 has the reduction value
 __inline__ __device__ static double warpReduceSum(unsigned int warpsize, double val) {
     for (int delta = (warpsize>>1); delta; delta >>= 1)
 	val += __shfl_down(val, delta);
