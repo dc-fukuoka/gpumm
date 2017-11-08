@@ -1,6 +1,7 @@
 gpumm - matrix-matrix multiplication by using CUDA and cublas.
 ===
-cuda, intel compiler and MKL are needed.  
+cuda, intel compiler and MKL are needed.
+for openacc, PGI compiler is needed.  
 It seems that column major indexing is better for cuda even in C/C++.  
   
 The following is a result, GPU used in the test is nvidia K80.  
@@ -23,14 +24,21 @@ trace: -4.324045225743848e+03
 ~~~
 * CUDA with shared memory
 ~~~
-$ KMP_AFFINITY=compact srun -pGPU -n1 ./cuda/cumm 8192 32
-# of blocks per grid:   x: 256, y: 256
-# of threads per block: x: 32, y: 32
+$ KMP_AFFINITY=compact srun -pGPU -n1 ./cuda/cumm 8192 16
+# of blocks per grid:   x: 512, y: 512
+# of threads per block: x: 16, y: 16
 shared memory version
-size of shared memory used[B]: 16384
-time[s]: 16.187616
-trace: -4.324045225743850e+03
+size of shared memory used[B]: 4096
+time[s]: 14.689427
+trace: -4.324045225743851e+03
 ~~~
+* openacc
+~~
+$ KMP_AFFINITY=compact srun -pGPU -n1 ./openacc/accmm 8192
+size: 8192
+time[s]: 20.087699
+trace: -4.324045225743852e+03
+~~
 * cublasDgemm() (note: the matrices for cublas are column-major, so transepose is performed.)
 ~~~
 $ KMP_AFFINITY=compact srun -pGPU -n1 ./cublas/cublasmm 8192
@@ -53,6 +61,10 @@ size: 8192
 maximum error: 1.364242e-12
 
 $ ./check/check C C.cuda
+size: 8192
+maximum error: 0.000000e+00
+
+$ ./check/check C C.acc
 size: 8192
 maximum error: 0.000000e+00
 
