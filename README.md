@@ -38,7 +38,7 @@ $ KMP_AFFINITY=compact srun -pGPU -n1 ./openacc/accmm 8192
 size: 8192
 time[s]: 20.087699
 trace: -4.324045225743852e+03
-~~
+~~~
 * cublasDgemm() (note: the matrices for cublas are column-major, so transepose is performed.)
 ~~~
 $ KMP_AFFINITY=compact srun -pGPU -n1 ./cublas/cublasmm 8192
