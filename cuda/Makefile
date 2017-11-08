@@ -1,5 +1,5 @@
 NVCC        = nvcc
-32;278;0cCXX         = icpc
+CXX         = icpc
 CXXFLAGS    = -g -O3 -march=core-avx2 -MMD -MP -Wall
 NV_CXXFLAGS = -g -O3 -arch sm_35
 CPPFLAGS    = -I. -D_USE_SM
