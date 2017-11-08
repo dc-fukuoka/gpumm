@@ -22,4 +22,4 @@ ALL: $(BIN)
 -include $(DEPS)
 
 clean:
-	rm -f $(BIN) $(OBJS) $(DEPS) *~
+	rm -f $(BIN) $(OBJS) $(DEPS) *~ C.mkl

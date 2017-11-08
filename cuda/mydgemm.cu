@@ -8,6 +8,7 @@
  */
 
 #include <stdio.h>
+#include "reduce_dsum.h"
 
 #define idx(JMAX, I, J) ((JMAX)*(I)+(J))
 
@@ -77,12 +78,10 @@ __host__ void mydgemm(dim3 &nblocks_per_grid, dim3 &nthreads_per_block, size_t s
     double *dA, *dB, *dC;
     size_t *dsize;
     cudaDeviceProp dp;
-    unsigned int warpsize, smsize, smsize_used;
+    unsigned int smsize, smsize_used;
 
     cudaGetDeviceProperties(&dp, 0);
-    warpsize = dp.warpSize;
     smsize   = dp.sharedMemPerBlock;
-//    printf("warp size: %u\n", warpsize);
 
     printf("# of blocks per grid:   x: %u, y: %u\n", nblocks_per_grid.x,   nblocks_per_grid.y);
     printf("# of threads per block: x: %u, y: %u\n", nthreads_per_block.x, nthreads_per_block.y);
@@ -108,11 +107,43 @@ __host__ void mydgemm(dim3 &nblocks_per_grid, dim3 &nthreads_per_block, size_t s
     printf("no shared memory version\n");
     _mydgemm<<<nblocks_per_grid, nthreads_per_block>>>(dsize, dA, dB, dC);
 #endif /* _USE_SM */
-
-    
+   
     cudaMemcpy(hC, dC, sizeof(*hC)*size*size, cudaMemcpyDeviceToHost);
     cudaFree((void*)dA);
     cudaFree((void*)dB);
     cudaFree((void*)dC);
     cudaFree((void*)dsize);
+}
+
+__host__ void calc_trace(size_t size, double *hC, double *trace) {
+    double *diag, *ddiag;
+    double *dtrace;
+    dim3 nblocks_per_grid, nthreads_per_block;
+    unsigned int warpsize, maxthreads;
+    cudaDeviceProp dp;
+
+    cudaGetDeviceProperties(&dp, 0);
+    maxthreads = dp.maxThreadsPerBlock;
+    warpsize   = dp.warpSize;
+    
+    if (size >= maxthreads)
+	nthreads_per_block.x = maxthreads;
+    else
+	nthreads_per_block.x = size;
+    nblocks_per_grid.x = size/nthreads_per_block.x;
+    if (size%nthreads_per_block.x)
+	printf("warning: size%nthreads_per_block.x = %d\n", size%nthreads_per_block.x);
+
+    *trace = 0.0;
+    diag = (double*)malloc(sizeof(*diag)*size);
+    for (int i=0; i<size; i++)
+	diag[i] = hC[idx(size, i, i)];
+    cudaMalloc((void**)&ddiag,  sizeof(*ddiag)*size);
+    cudaMalloc((void**)&dtrace, sizeof(*dtrace));
+    cudaMemcpy(ddiag, diag, sizeof(*ddiag)*size, cudaMemcpyHostToDevice);
+    deviceReduceBlockAtomicKernel<<<nblocks_per_grid, nthreads_per_block>>>(warpsize, ddiag, dtrace, size);
+    cudaMemcpy(trace, dtrace, sizeof(*trace), cudaMemcpyDeviceToHost);
+    cudaFree(ddiag);
+    cudaFree(dtrace);
+    free(diag);
 }

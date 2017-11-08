@@ -9,15 +9,17 @@ The size of the matrices is size x size.
   
 * CPU version(OpenMP)
 ~~~
-$ KMP_AFFINITY=compact srun -pGPU -n1 cpu/mm 8192
+$ KMP_AFFINITY=compact srun -pGPU -n1 ./cpu/mm 8192
 size: 8192
-time[s]: 26.832899
+time[s]: 24.373878
+trace: -4.324045225743850e+03
 ~~~
 * intel MKL dgemm(thread version)
 ~~~
-$ KMP_AFFINITY=compact srun -pGPU -n1 mkl/dgemm 8192
+$ KMP_AFFINITY=compact srun -pGPU -n1 ./mkl/dgemm 8192
 size: 8192
-time[s]: 3.540060
+time[s]: 3.250625
+trace: -4.324045225743848e+03
 ~~~
 * CUDA with shared memory
 ~~~
@@ -26,26 +28,29 @@ $ KMP_AFFINITY=compact srun -pGPU -n1 ./cuda/cumm 8192 32
 # of threads per block: x: 32, y: 32
 shared memory version
 size of shared memory used[B]: 16384
-time[s]: 16.133767
+time[s]: 16.187616
+trace: -4.324045225743850e+03
 ~~~
 * cublasDgemm() (note: the matrices for cublas are column-major, so transepose is performed.)
 ~~~
-$ KMP_AFFINITY=compact srun -pGPU -n1 cublas/cublasmm 8192
+$ KMP_AFFINITY=compact srun -pGPU -n1 ./cublas/cublasmm 8192
 size: 8192
-time[s]: 2.432141
+time[s]: 2.404458
+trace: -4.324045225743852e+03
 ~~~
 * cublasXtDgemm()
 ~~~
 $ KMP_AFFINITY=compact srun -pGPU -n1 ./cublasxt/cublasxtmm 8192
 size: 8192
 # of devices: 6
-time[s]: 3.981712
+time[s]: 3.995293
+trace: -4.324045225743849e+03
 ~~~
 * check the results
 ~~~
 $ ./check/check C C.mkl
 size: 8192
-maximum error: 1.136868e-12
+maximum error: 1.364242e-12
 
 $ ./check/check C C.cuda
 size: 8192

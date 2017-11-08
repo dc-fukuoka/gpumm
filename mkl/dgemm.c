@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
+#include <omp.h>
 #include <mkl.h>
 #include <mkl_vsl.h>
 
@@ -18,23 +19,20 @@ static void gen_rand(MKL_INT seed, double min, double max, size_t size, double *
 	ret = vdRngUniform(method, stream, size, arr, min, max); assert(ret==VSL_ERROR_OK);
 	ret = vslDeleteStream(&stream);                          assert(ret==VSL_ERROR_OK);
 }
-#if 0
-static void mydgemm(size_t size, double *A, double *B, double *C)
+
+static double calc_trace(size_t size, double *C)
 {
-	int i, j, k;
-	
+        int i;
+        double trace = 0.0;
+
 #ifdef _OPENMP
-#pragma omp parallel for simd private(i, j, k)
+#pragma omp parallel for simd private(i) reduction(+:trace)
 #endif
-	for (i=0; i<size; i++) {
-		for (k=0; k<size; k++) {
-			for (j=0; j<size; j++) {
-				C[idx(size, i, j)] += A[idx(size, i, k)]*B[idx(size, k, j)];
-			}
-		}
-	}
+        for (i=0; i<size; i++)
+                trace += C[idx(size, i, i)];
+        return trace;
 }
-#endif
+
 static double dclock(void)
 {
 	struct timespec tp;
@@ -49,6 +47,7 @@ int main(int argc, char **argv)
 	size_t size;
 	double *A = NULL, *B = NULL, *C = NULL;
 	double t0, time;
+	double trace = 0.0;
 	int i, j, k;
 	FILE *fp;
 	char filename[] = "C.mkl";
@@ -71,7 +70,10 @@ int main(int argc, char **argv)
 		    size, size, size, 1.0, A, size, B, size, 0.0, C, size);
 	time = dclock() - t0;
 
+	trace = calc_trace(size, C);
+
 	printf("time[s]: %lf\n", time);
+	printf("trace: %.15le\n", trace);
 	fp = fopen(filename, "wb");
 	fwrite(C, sizeof(*C), size*size, fp);
 	fclose(fp);
