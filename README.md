@@ -33,7 +33,7 @@ time[s]: 14.689427
 trace: -4.324045225743851e+03
 ~~~
 * openacc
-~~
+~~~
 $ KMP_AFFINITY=compact srun -pGPU -n1 ./openacc/accmm 8192
 size: 8192
 time[s]: 20.087699
