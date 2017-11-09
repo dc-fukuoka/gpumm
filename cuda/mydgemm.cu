@@ -26,7 +26,7 @@ __device__ static void clearbuf(size_t *dsize, double *p) {
 __global__ static void _mydgemm(size_t *dsize, double *dA, double *dB, double *dC) {
     unsigned int k, ii;
     unsigned int bi, bj, ti, tj;
-    unsigned int subsize, stride;
+    unsigned int subsize, gsize;
 #if 0
     extern __shared__ double dAsub[], dBsub[]; // this does not work!
 #endif
@@ -43,14 +43,15 @@ __global__ static void _mydgemm(size_t *dsize, double *dA, double *dB, double *d
 
     if (blockDim.x != blockDim.y || gridDim.x != gridDim.y) return;
     subsize = blockDim.x;
-    stride = *dsize;
+    gsize = *dsize;
 
     clearbuf(dsize, dC);
 
     /* shared memory version algorithm
      *
      * ex. blockIdx.x = 1, blockIdx.y = 1
-     * a, b and c are local matrices
+     *     gridDim.x  = 3, gridDim.y  = 3
+     * a, b and c are local matrices, a and b are stored in the shared memory
      * step 0
      * A: | | | | B: | |b| | C: | | | |
      *    |a| | |    | | | |    | |c| | c += a*b
@@ -65,19 +66,20 @@ __global__ static void _mydgemm(size_t *dsize, double *dA, double *dB, double *d
      * A: | | | | B: | | | | C: | | | |
      *    | | |a|    | | | |    | |c| | c += a*b
      *    | | | |    | |b| |    | | | |
+     *
      */
 
-    pdCsub = &dC[subsize*idx(stride, bj, bi)];
-    pdCsub[idx(stride, tj, ti)] = 0.0;
+    pdCsub = &dC[subsize*idx(gsize, bj, bi)];
+    pdCsub[idx(gsize, tj, ti)] = 0.0;
     for (ii=0; ii<gridDim.x; ii++) {
-	pdAsub = &dA[subsize*idx(stride, bj, ii)];
-	pdBsub = &dB[subsize*idx(stride, ii, bi)];
+	pdAsub = &dA[subsize*idx(gsize, bj, ii)];
+	pdBsub = &dB[subsize*idx(gsize, ii, bi)];
 	/* copy the elements to the shared memory */
-	dAsub[idx(subsize, tj, ti)] = pdAsub[idx(stride, tj, ti)];
-	dBsub[idx(subsize, tj, ti)] = pdBsub[idx(stride, tj, ti)];
+	dAsub[idx(subsize, tj, ti)] = pdAsub[idx(gsize, tj, ti)];
+	dBsub[idx(subsize, tj, ti)] = pdBsub[idx(gsize, tj, ti)];
 	__syncthreads();
 	for (k=0; k<subsize; k++)
-	    pdCsub[idx(stride, tj, ti)] += dAsub[idx(subsize, tj, k)]*dBsub[idx(subsize, k, ti)];
+	    pdCsub[idx(gsize, tj, ti)] += dAsub[idx(subsize, tj, k)]*dBsub[idx(subsize, k, ti)];
 	__syncthreads();
     }
 }

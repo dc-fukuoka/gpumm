@@ -2,7 +2,7 @@ gpumm - matrix-matrix multiplication by using CUDA, cublas, cublasxt and OpenACC
 ===
 cuda, intel compiler and MKL are needed.  
 for openacc, PGI compiler is needed.  
-It seems that column major indexing is better for cuda even in C/C++.  
+It seems that column major indexing is better for cublas/cuda even in C/C++.  
   
 The following is a result, GPU used in the test is nvidia K80.  
 CPU is Intel(R) Xeon(R) CPU E5-2650 v3 @ 2.30GHz, 20 cores.  
