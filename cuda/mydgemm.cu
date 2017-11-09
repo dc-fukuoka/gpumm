@@ -47,6 +47,26 @@ __global__ static void _mydgemm(size_t *dsize, double *dA, double *dB, double *d
 
     clearbuf(dsize, dC);
 
+    /* shared memory version algorithm
+     *
+     * ex. blockIdx.x = 1, blockIdx.y = 1
+     * a, b and c are local matrices
+     * step 0
+     * A: | | | | B: |b| | | C: | | | |
+     *    |a| | |    | | | |    | |c| | c += a*b
+     *    | | | |    | | | |    | | | |
+     *
+     * step 1
+     * A: | | | | B: | | | | C: | | | |
+     *    | |a| |    | |b| |    | |c| | c += a*b
+     *    | | | |    | | | |    | | | |
+     *
+     * step 2
+     * A: | | |a| B: | | | | C: | | | |
+     *    | | | |    | | | |    | |c| | c += a*b
+     *    | | | |    | |b| |    | | | |
+     */
+
     pdCsub = &dC[subsize*idx(stride, bj, bi)];
     pdCsub[idx(stride, tj, ti)] = 0.0;
     for (ii=0; ii<gridDim.x; ii++) {
