@@ -14,6 +14,9 @@ int main(int argc, char **argv) {
 
     size    = (argc==1)            ? 1024                  : (size_t)atoi(argv[1]);
     nblocks = (argv[1] && argv[2]) ? (size_t)atoi(argv[2]) : 16;
+
+    printf("size: %lu\n", size);
+    
     if (size%nblocks)
 	fprintf(stderr, "warning: mod(size, nblocks)=%d\n", size%nblocks);
 
