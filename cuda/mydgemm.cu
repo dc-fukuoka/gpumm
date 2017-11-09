@@ -62,8 +62,8 @@ __global__ static void _mydgemm(size_t *dsize, double *dA, double *dB, double *d
      *    | | | |    | | | |    | | | |
      *
      * step 2
-     * A: | | |a| B: | | | | C: | | | |
-     *    | | | |    | | | |    | |c| | c += a*b
+     * A: | | | | B: | | | | C: | | | |
+     *    | | |a|    | | | |    | |c| | c += a*b
      *    | | | |    | |b| |    | | | |
      */
 
