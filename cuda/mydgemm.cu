@@ -52,7 +52,7 @@ __global__ static void _mydgemm(size_t *dsize, double *dA, double *dB, double *d
      * ex. blockIdx.x = 1, blockIdx.y = 1
      * a, b and c are local matrices
      * step 0
-     * A: | | | | B: |b| | | C: | | | |
+     * A: | | | | B: | |b| | C: | | | |
      *    |a| | |    | | | |    | |c| | c += a*b
      *    | | | |    | | | |    | | | |
      *
