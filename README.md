@@ -1,6 +1,6 @@
-gpumm - matrix-matrix multiplication by using CUDA and cublas.
+gpumm - matrix-matrix multiplication by using CUDA, cublas, cublasxt and OpenACC.
 ===
-cuda, intel compiler and MKL are needed.
+cuda, intel compiler and MKL are needed.  
 for openacc, PGI compiler is needed.  
 It seems that column major indexing is better for cuda even in C/C++.  
   
