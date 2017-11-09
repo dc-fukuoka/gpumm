@@ -16,7 +16,7 @@ __device__ static void clearbuf(size_t *dsize, double *p) {
     unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
     unsigned int j = blockIdx.y*blockDim.y + threadIdx.y;
     if (i >= *dsize || j >= *dsize) return;
-    p[idx(*dsize, i, j)] = 0.0;
+    p[idx(*dsize, j, i)] = 0.0;
 }
 
 /* with shared memory
@@ -47,14 +47,14 @@ __global__ static void _mydgemm(size_t *dsize, double *dA, double *dB, double *d
 
     clearbuf(dsize, dC);
 
-    pdCsub = &dC[subsize*idx(stride, bi, bj)];
-    pdCsub[idx(stride, ti, tj)] = 0.0;
+    pdCsub = &dC[subsize*idx(stride, bj, bi)];
+    pdCsub[idx(stride, tj, ti)] = 0.0;
     for (ii=0; ii<gridDim.x; ii++) {
-	pdAsub = &dA[subsize*idx(stride, bi, ii)];
-	pdBsub = &dB[subsize*idx(stride, ii, bj)];
+	pdAsub = &dA[subsize*idx(stride, bj, ii)];
+	pdBsub = &dB[subsize*idx(stride, ii, bi)];
 	/* copy the elements to the shared memory */
-	dAsub[idx(subsize, ti, tj)] = pdAsub[idx(stride, ti, tj)];
-	dBsub[idx(subsize, ti, tj)] = pdBsub[idx(stride, ti, tj)];
+	dAsub[idx(subsize, tj, ti)] = pdAsub[idx(stride, tj, ti)];
+	dBsub[idx(subsize, tj, ti)] = pdBsub[idx(stride, tj, ti)];
 	__syncthreads();
 	for (k=0; k<subsize; k++)
 	    pdCsub[idx(stride, tj, ti)] += dAsub[idx(subsize, tj, k)]*dBsub[idx(subsize, k, ti)];
@@ -70,7 +70,7 @@ __global__ static void _mydgemm(size_t *dsize, double *dA, double *dB, double *d
     clearbuf(dsize, dC);
     if (i >= *dsize || j >= *dsize) return;
     for (k=0; k<*dsize; k++)
-        dC[idx(*dsize, i, j)] += dA[idx(*dsize, i, k)]*dB[idx(*dsize, k, j)];
+        dC[idx(*dsize, j, i)] += dA[idx(*dsize, j, k)]*dB[idx(*dsize, k, i)];
 }
 #endif /* _USE_SM */
 
