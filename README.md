@@ -15,6 +15,13 @@ size: 8192
 time[s]: 24.373878
 trace: -4.324045225743850e+03
 ~~~
+* CPU version(OpenMP, fortran)
+~~~
+$ KMP_AFFINITY=compact srun -n1 ./cpuf/mmf 8192
+size: 8192
+time[s]:  6.328609
+trace: -4.324045225743850E+03
+~~~
 * intel MKL dgemm(thread version)
 ~~~
 $ KMP_AFFINITY=compact srun -pGPU -n1 ./mkl/dgemm 8192
@@ -67,6 +74,10 @@ trace: -4.324045225743849e+03
 ~~~
 * check the results
 ~~~
+$ ./check/check C C_f
+size: 8192
+maximum error: 0.000000e+00
+
 $ ./check/check C C.mkl
 size: 8192
 maximum error: 1.364242e-12
