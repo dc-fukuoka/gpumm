@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
-#include <openacc.h>
+#include <omp.h>
 #include <mkl_vsl.h>
 
 #define idx(JMAX, I, J) ((JMAX)*(I)+(J))
@@ -22,32 +22,27 @@ static void gen_rand(MKL_INT seed, double min, double max, size_t size, double *
 static void mydgemm(size_t size, double *A, double *B, double *C)
 {
 	int i, j, k;
+	double sum;
 	
 #ifdef _OPENACC
-#pragma acc init device_type(acc_device_default)
-#pragma acc enter data copyin(A[0:size*size], B[0:size*size]) create(C[0:size*size])
-#pragma acc parallel private(i) present(C[0:size*size])
-#pragma acc loop 
-#endif	
-	for (i=0; i<size*size; i++)
-		C[i] = 0.0;
-#ifdef _OPENACC
-#pragma acc parallel private(i, j, k) present(A[0:size*size], B[0:size*size], C[0:size*size])
-#pragma acc loop independent
+#pragma acc enter data copyin(A[0:size*size], B[0:size*size], C[0:size*size])
+#pragma acc parallel private(i, j, k, sum) present(A[:], B[:], C[:])
+#pragma acc loop gang
 #endif
 	for (i=0; i<size; i++) {
 #ifdef _OPENACC
-#pragma acc loop independent
+#pragma acc loop vector
 #endif
 		for (j=0; j<size; j++) {
+			sum = 0.0;
 			for (k=0; k<size; k++) {
-				C[idx(size, i, j)] += A[idx(size, i, k)]*B[idx(size, k, j)];
+				sum += A[idx(size, i, k)]*B[idx(size, k, j)];
 			}
+			C[idx(size, i, j)] = sum;
 		}
 	}
 #ifdef _OPENACC
-#pragma acc update host(C[0:size*size])
-#pragma acc exit data delete(A[0:size*size], B[0:size*size])
+#pragma acc exit data delete(A[0:size*size], B[0:size*size]) copyout(C[0:size*size])
 #endif
 }
 
@@ -57,14 +52,11 @@ static double calc_trace(size_t size, double *C)
         double trace = 0.0;
 
 #ifdef _OPENACC
-#pragma acc parallel private(i) present(C[0:size*size])
+#pragma acc parallel private(i) copyin(C[0:size*size])
 #pragma acc loop reduction(+:trace)
 #endif
         for (i=0; i<size; i++)
                 trace += C[idx(size, i, i)];
-#ifdef _OPENACC
-#pragma acc exit data delete(C[0:size*size])
-#endif
         return trace;
 }
 
@@ -93,6 +85,8 @@ int main(int argc, char **argv)
 	A  = (double*)malloc(sizeof(*A)*size*size);
 	B  = (double*)malloc(sizeof(*B)*size*size);
 	C  = (double*)malloc(sizeof(*C)*size*size);
+	for (i=0; i<size*size; i++)
+		C[i] = 0.0;
 
 	gen_rand(5555, -1.0, 1.0, size*size, A);
 	gen_rand(7777, -1.0, 1.0, size*size, B);
