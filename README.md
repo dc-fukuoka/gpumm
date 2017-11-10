@@ -24,13 +24,14 @@ trace: -4.324045225743848e+03
 ~~~
 * CUDA without shared memory
 ~~~
-$ KMP_AFFINITY=compact srun -pGPU -n1 ./cuda/cumm 8192 16
+$ KMP_AFFINITY=compact srun -n1 ./cuda/cumm 8192 32
 size: 8192
-# of blocks per grid:   x: 512, y: 512
-# of threads per block: x:  16, y:  16
-no shared memory version
-time[s]: 40.464609
-trace: -4.324045225743850e+03
+# of blocks per grid:   x: 256, y: 256
+# of threads per block: x:  32, y:  32
+shared memory version
+size of shared memory used[B]: 16384
+time[s]: 6.413921
+trace: -4.324045225743851e+03
 ~~~
 * CUDA with shared memory
 ~~~
