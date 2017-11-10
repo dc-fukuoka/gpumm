@@ -105,8 +105,8 @@ __host__ void mydgemm(dim3 &nblocks_per_grid, dim3 &nthreads_per_block, size_t s
     cudaGetDeviceProperties(&dp, 0);
     smsize   = dp.sharedMemPerBlock;
 
-    printf("# of blocks per grid:   x: %u, y: %u\n", nblocks_per_grid.x,   nblocks_per_grid.y);
-    printf("# of threads per block: x: %u, y: %u\n", nthreads_per_block.x, nthreads_per_block.y);
+    printf("# of blocks per grid:   x:%4u, y:%4u\n", nblocks_per_grid.x,   nblocks_per_grid.y);
+    printf("# of threads per block: x:%4u, y:%4u\n", nthreads_per_block.x, nthreads_per_block.y);
     if (nthreads_per_block.x*nthreads_per_block.y > dp.maxThreadsPerBlock)
 	printf("warning: nthreads_per_block.x*nthreads_per_block.y exceeds dp.maxThreadsPerBlock, dp.maxThreadsPerBlock: %u\n", dp.maxThreadsPerBlock);
     
