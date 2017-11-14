@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
 	max_err = 0.0;
 #ifdef _OPENMP
-#pragma omp parallel for
+#pragma omp parallel for reduction(max:max_err)
 #endif
 	for (i=0; i<size*size; i++) {
 		max_err = fmax(max_err, fabs(C1[i]-C2[i]));
