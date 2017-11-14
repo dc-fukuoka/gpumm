@@ -5,7 +5,7 @@
 #include <omp.h>
 #include <mkl_vsl.h>
 
-#define idx(JMAX, I, J) (JMAX)*(I)+(J)
+#define idx(JMAX, I, J) ((JMAX)*(I)+(J))
 
 static void gen_rand(MKL_INT seed, double min, double max, size_t size, double *arr)
 {

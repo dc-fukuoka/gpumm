@@ -1,6 +1,6 @@
 #include <omp.h>
 
-#define idx(JMAX, I, J) (JMAX)*(I)+(J)
+#define idx(JMAX, I, J) ((JMAX)*(I)+(J))
 
 double calc_trace(size_t size, double *C)
 {
