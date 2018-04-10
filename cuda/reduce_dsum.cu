@@ -16,7 +16,7 @@ __inline__ __device__ static double warpReduceSum(unsigned int warpsize, double 
 	val += __shfl_down(val, delta);
     return val;
 }
-
+#if 0
 __device__ static double atomicAdd(double *address, double val)
 {
     unsigned long long int *address_as_ull = (unsigned long long int*)address;
@@ -29,7 +29,7 @@ __device__ static double atomicAdd(double *address, double val)
     } while (assumed != old);
     return __longlong_as_double(old);
 }
-
+#endif
 __device__ static double blockReduceSum(unsigned int warpsize, double val) {
     static __shared__ double sm[32];
     int lid = threadIdx.x%warpsize; // 0,1,2,...,warpsize-1,0,1,2,...

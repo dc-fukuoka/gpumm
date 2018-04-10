@@ -1,5 +1,5 @@
 CC       = pgcc
-CFLAGS   = -O4 -Mvect=simd:256 -acc -ta=tesla:cc35 -Minfo=accel -MMD
+CFLAGS   = -O4 -Mvect=simd:256 -Mfma -acc -ta=tesla:cc60 -Minfo=accel -MMD
 CPPFLAGS = -I.
 LDFLAGS  = -L. -L$(MKLROOT)/lib/intel64 -L$(MKLROOT)/../compiler/lib/intel64
 LIBS     = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lrt
