@@ -123,7 +123,7 @@ __host__ void mydgemm(dim3 &nblocks_per_grid, dim3 &nthreads_per_block, size_t s
 
 #ifdef _USE_SM
     smsize_used = sizeof(*dA)*nthreads_per_block.x*nthreads_per_block.y*2;
-    if (smsize_used >= smsize)
+    if (smsize_used > smsize)
 	printf("warning: used shared memory exceeds the limit, used shared memory size[B]:%u limit[B]: %u\n", smsize_used, smsize);
     printf("shared memory version\nsize of shared memory used[B]: %u\n", smsize_used);
     _mydgemm<<<nblocks_per_grid, nthreads_per_block, smsize_used>>>(dsize, dA, dB, dC);
