@@ -2,8 +2,7 @@ NVCC        = nvcc
 CXX         = icpc
 CXXFLAGS    = -g -O3 -march=core-avx2 -MMD -MP -Wall
 NV_CXXFLAGS = -g -O3 -arch sm_60
-#CPPFLAGS    = -I. -D_USE_SM
-CPPFLAGS    = -I.
+CPPFLAGS    = -I. -D_USE_SM
 LDFLAGS     = -L. -L$(MKLROOT)/lib/intel64
 LIBS        = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lrt
 SRCS        = dclock.cxx gen_rand.cxx
