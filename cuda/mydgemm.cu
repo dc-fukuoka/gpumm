@@ -1,6 +1,6 @@
 /*
- * nvidia K80
- * Total amount of shared memory per block:       49152 bytes
+ * nvidia P100
+ * Total Shared Memory per Block: 49152
  * Warp Size:                     32
  * Maximum Threads per Block:     1024
  * Maximum Block Dimensions:      1024, 1024, 64
@@ -8,6 +8,7 @@
  */
 
 #include <stdio.h>
+#include "mydgemm.h"
 #include "reduce_dsum.h"
 
 #define idx(JMAX, I, J) ((JMAX)*(I)+(J))
@@ -103,6 +104,7 @@ __host__ void mydgemm(dim3 &nblocks_per_grid, dim3 &nthreads_per_block, size_t s
     unsigned int smsize, smsize_used;
 
     cudaGetDeviceProperties(&dp, 0);
+    cuda_error_check();
     smsize   = dp.sharedMemPerBlock;
 
     printf("# of blocks per grid:   x:%4u, y:%4u\n", nblocks_per_grid.x,   nblocks_per_grid.y);
@@ -110,14 +112,14 @@ __host__ void mydgemm(dim3 &nblocks_per_grid, dim3 &nthreads_per_block, size_t s
     if (nthreads_per_block.x*nthreads_per_block.y > dp.maxThreadsPerBlock)
 	printf("warning: nthreads_per_block.x*nthreads_per_block.y exceeds dp.maxThreadsPerBlock, dp.maxThreadsPerBlock: %u\n", dp.maxThreadsPerBlock);
     
-    cudaMalloc((void**)&dA,    sizeof(*dA)*size*size);
-    cudaMalloc((void**)&dB,    sizeof(*dB)*size*size);
-    cudaMalloc((void**)&dC,    sizeof(*dC)*size*size);
-    cudaMalloc((void**)&dsize, sizeof(*dsize));
+    cudaMalloc((void**)&dA,    sizeof(*dA)*size*size); cuda_error_check();
+    cudaMalloc((void**)&dB,    sizeof(*dB)*size*size); cuda_error_check();
+    cudaMalloc((void**)&dC,    sizeof(*dC)*size*size); cuda_error_check();
+    cudaMalloc((void**)&dsize, sizeof(*dsize));        cuda_error_check();
     
-    cudaMemcpy(dA,    hA,    sizeof(*dA)*size*size, cudaMemcpyHostToDevice);
-    cudaMemcpy(dB,    hB,    sizeof(*dA)*size*size, cudaMemcpyHostToDevice);
-    cudaMemcpy(dsize, &size, sizeof(*dsize),        cudaMemcpyHostToDevice);
+    cudaMemcpy(dA,    hA,    sizeof(*dA)*size*size, cudaMemcpyHostToDevice); cuda_error_check();
+    cudaMemcpy(dB,    hB,    sizeof(*dA)*size*size, cudaMemcpyHostToDevice); cuda_error_check();
+    cudaMemcpy(dsize, &size, sizeof(*dsize),        cudaMemcpyHostToDevice); cuda_error_check();
 
 #ifdef _USE_SM
     smsize_used = sizeof(*dA)*nthreads_per_block.x*nthreads_per_block.y*2;
@@ -125,16 +127,18 @@ __host__ void mydgemm(dim3 &nblocks_per_grid, dim3 &nthreads_per_block, size_t s
 	printf("warning: used shared memory exceeds the limit, used shared memory size[B]:%u limit[B]: %u\n", smsize_used, smsize);
     printf("shared memory version\nsize of shared memory used[B]: %u\n", smsize_used);
     _mydgemm<<<nblocks_per_grid, nthreads_per_block, smsize_used>>>(dsize, dA, dB, dC);
+    cuda_error_check();
 #else
     printf("no shared memory version\n");
     _mydgemm<<<nblocks_per_grid, nthreads_per_block>>>(dsize, dA, dB, dC);
+    cuda_error_check();
 #endif /* _USE_SM */
    
-    cudaMemcpy(hC, dC, sizeof(*hC)*size*size, cudaMemcpyDeviceToHost);
-    cudaFree((void*)dA);
-    cudaFree((void*)dB);
-    cudaFree((void*)dC);
-    cudaFree((void*)dsize);
+    cudaMemcpy(hC, dC, sizeof(*hC)*size*size, cudaMemcpyDeviceToHost); cuda_error_check();
+    cudaFree((void*)dA);    cuda_error_check();
+    cudaFree((void*)dB);    cuda_error_check();
+    cudaFree((void*)dC);    cuda_error_check();
+    cudaFree((void*)dsize); cuda_error_check();
 }
 
 __host__ void calc_trace(size_t size, double *hC, double *trace) {
@@ -145,6 +149,7 @@ __host__ void calc_trace(size_t size, double *hC, double *trace) {
     cudaDeviceProp dp;
 
     cudaGetDeviceProperties(&dp, 0);
+    cuda_error_check();
     maxthreads = dp.maxThreadsPerBlock;
     warpsize   = dp.warpSize;
     
@@ -160,12 +165,13 @@ __host__ void calc_trace(size_t size, double *hC, double *trace) {
     diag = (double*)malloc(sizeof(*diag)*size);
     for (int i=0; i<size; i++)
 	diag[i] = hC[idx(size, i, i)];
-    cudaMalloc((void**)&ddiag,  sizeof(*ddiag)*size);
-    cudaMalloc((void**)&dtrace, sizeof(*dtrace));
-    cudaMemcpy(ddiag, diag, sizeof(*ddiag)*size, cudaMemcpyHostToDevice);
+    cudaMalloc((void**)&ddiag,  sizeof(*ddiag)*size); cuda_error_check();
+    cudaMalloc((void**)&dtrace, sizeof(*dtrace));     cuda_error_check();
+    cudaMemcpy(ddiag, diag, sizeof(*ddiag)*size, cudaMemcpyHostToDevice); cuda_error_check();
     deviceReduceBlockAtomicKernel<<<nblocks_per_grid, nthreads_per_block>>>(warpsize, ddiag, dtrace, size);
-    cudaMemcpy(trace, dtrace, sizeof(*trace), cudaMemcpyDeviceToHost);
-    cudaFree(ddiag);
-    cudaFree(dtrace);
+    cuda_error_check();
+    cudaMemcpy(trace, dtrace, sizeof(*trace), cudaMemcpyDeviceToHost); cuda_error_check();
+    cudaFree(ddiag);  cuda_error_check();
+    cudaFree(dtrace); cuda_error_check();
     free(diag);
 }
