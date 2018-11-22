@@ -10,7 +10,7 @@ The size of the matrices is size x size.
   
 * CPU version(OpenMP)
 ~~~
-$ ./cpu/mm 8192
+$ KMP_AFFINITY=compact ./cpu/mm 8192
 size: 8192
 time[s]: 16.613501
 trace: -4.324045225743852e+03
@@ -24,12 +24,12 @@ trace: -4.324045225743852E+03
 ~~~
 * intel MKL dgemm(thread version)
 ~~~
-$ ./mkl/dgemm 8192
+$ KMP_AFFINITY=compact ./mkl/dgemm 8192
 size: 8192
 time[s]: 3.223232
 trace: -4.324045225743848e+03
 ~~~
-* CUDA without shared memory
+* CUDA without shared memory(remove -D_USE_SM from the Makefile)
 ~~~
 $ ./cuda/cumm 8192 32
 size: 8192
