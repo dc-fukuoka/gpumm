@@ -1,5 +1,5 @@
 #define myassert(expr, word) \
-  if ((expr) .eq. .false.) then; \
+  if (.not.(expr)) then; \
      write(6,*) word, ":", __FILE__, ":", __LINE__; \
      call tracebackqq(); \
      stop; \
