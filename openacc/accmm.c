@@ -26,7 +26,7 @@ static void mydgemm(size_t size, double *A, double *B, double *C)
 	
 #ifdef _OPENACC
 #pragma acc enter data copyin(A[0:size*size], B[0:size*size], C[0:size*size])
-#pragma acc parallel private(i, j, k, sum) present(A[:], B[:], C[:])
+#pragma acc parallel private(i, j, k, sum) present(A[0:size*size], B[0:size*size], C[0:size*size])
 #pragma acc loop gang
 #endif
 	for (i=0; i<size; i++) {
