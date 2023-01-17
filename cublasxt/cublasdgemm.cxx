@@ -8,7 +8,7 @@
 #define cublas_assert(expr, fmt, ...)					\
     do {								\
 	if (!(expr)) {							\
-	    fprintf(stderr, "%s: line %d: in %s(): "fmt, __FILE__, __LINE__, __func__, ## __VA_ARGS__); \
+	    fprintf(stderr, "%s: line %d: in %s(): " fmt, __FILE__, __LINE__, __func__, ## __VA_ARGS__); \
 	    fprintf(stderr, "\n");					\
 	    exit(EXIT_FAILURE);						\
 	}								\
