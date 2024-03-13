@@ -98,3 +98,5 @@ $ ./check/check C C.cublasxt
 size: 8192
 maximum error: 1.278977e-12
 ~~~
+
+testtest
