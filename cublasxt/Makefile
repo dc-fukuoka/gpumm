@@ -1,4 +1,4 @@
-CXX         = icpc
+CXX         = icpx
 CXXFLAGS    = -g -O3 -march=core-avx2 -MMD -MP -Wall
 CPPFLAGS    = -I. -I$(CUDA_HOME)/include
 LDFLAGS     = -L. -L$(MKLROOT)/lib/intel64 -L$(CUDA_HOME)/lib64
