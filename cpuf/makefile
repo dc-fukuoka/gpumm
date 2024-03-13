@@ -1,4 +1,4 @@
-FC       = ifort
+FC       = ifx
 FCFLAGS  = -g -O3 -fopenmp -march=core-avx2 -MMD
 FPPFLAGS = -I.
 LDFLAGS  = -L. -L$(MKLROOT)/lib/intel64
