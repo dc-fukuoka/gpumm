@@ -1,7 +1,7 @@
 NVCC        = nvcc
-CXX         = icpc
+CXX         = icpx
 CXXFLAGS    = -g -O3 -march=core-avx2 -MMD -MP -Wall
-NV_CXXFLAGS = -g -O3 -arch sm_60
+NV_CXXFLAGS = -g -O3 -arch native
 CPPFLAGS    = -I.
 CPPFLAGS   +=  -D_USE_SM
 LDFLAGS     = -L. -L$(MKLROOT)/lib/intel64
