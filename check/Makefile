@@ -1,4 +1,4 @@
-CC       = icc
+CC       = icx
 CFLAGS   = -g -O3 -fopenmp -march=core-avx2 -MMD -MP -Wall
 CPPFLAGS = -I.
 LDFLAGS  = -L.
